@@ -53,6 +53,7 @@ const createSlot = async function(req,res){
 
 //===================================================== get slot controller =====================================================//
 
+
 const getSlot = async function (req, res) {
 
     try {
@@ -86,6 +87,6 @@ const getSlot = async function (req, res) {
 }
 
 
-module.exports.createSlot = createSlot
-module.exports.getSlot = getSlot
+module.exports.createSlot = createSlot;
+module.exports.getSlot = getSlot;
 

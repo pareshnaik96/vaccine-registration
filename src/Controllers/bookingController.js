@@ -1,6 +1,6 @@
-const bookingModel = require("../Models/bookingModel")
-const slotModel = require("../Models/slotModel")
-const userModel = require("../Models/userModel")
+const bookingModel = require("../Models/bookingModel");
+const slotModel = require("../Models/slotModel");
+const userModel = require("../Models/userModel");
 const mongoose = require("mongoose");
 
 

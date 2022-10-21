@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
-const userController = require("../Controllers/userController")
-const slotController = require("../Controllers/slotController")
-const bookingController = require("../Controllers/bookingController")
+const userController = require("../Controllers/userController");
+const slotController = require("../Controllers/slotController");
+const bookingController = require("../Controllers/bookingController");
 
-const {authentication,authorization} = require("../Middlewares/auth")
+const {authentication,authorization} = require("../Middlewares/auth");
 
 
 
@@ -19,7 +19,7 @@ router.get('/slot',authentication,slotController.getSlot)     //Login user can s
 
 router.post('/booking/:userId',authentication,authorization,bookingController.bookSlot) 
 
-router.put('/booking/:userId',authentication,authorization,bookingController.updateBooking) //user only cancelled the booking slot
+router.put('/booking/:userId',authentication,authorization,bookingController.updateBooking) //user cancelled the booking slot only
 
 
 
