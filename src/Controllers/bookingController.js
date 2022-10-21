@@ -3,7 +3,7 @@ const slotModel = require("../Models/slotModel");
 const userModel = require("../Models/userModel");
 const mongoose = require("mongoose");
 
-
+//===== validation for object id
 const isValidObjectId = function (ObjectId) {
     return mongoose.Types.ObjectId.isValid(ObjectId);
   };
@@ -29,28 +29,35 @@ const bookSlot = async function (req, res) {
  
         const { doseType, slotDate, slotTime } = data
         
+        //for finding availability of slot from slotmodel
         const findSlot = await slotModel.findOne({ slotDate: slotDate, slotTime: slotTime })
         const availableSlot = findSlot.availableSlot
         if (availableSlot === 0) {
             return res.status(404).send({ status: false, message: "NO slot available in this time" })
         }
-        
+         
         let findBooking = await bookingModel.findOne({ userId:userId });
-
-        const getDoseType = findBooking.doseType
-        const getStatus =  findBooking.status
-        var findbookingId = findBooking._id
-       
+        //if user is already booked a slot then find the booking
+       //user can book another slot only if first dose is complected or cancelled
         if(findBooking){
+            const getDoseType = findBooking.doseType
+            const getStatus =  findBooking.status
+            var findbookingId = findBooking._id
+
             if(getDoseType =="First" && getStatus == "complected" || getDoseType =="First" && getStatus == "cancelled" ){
 
             let updatedSlot =  await bookingModel.findOneAndUpdate({ _id: findbookingId, userId }, {$set:{ status:"pending" }}, { new: true });
+
+                const slotId = findSlot._id
+                const newbookedSlot = findSlot.bookedSlot
+                 //finding the slot from slot Id and increasing the bookedSlot to +1 and decrease the available slot to -1
+                 await slotModel.findOneAndUpdate({_id:slotId},{$set:{bookedSlot:newbookedSlot+1,availableSlot:availableSlot-1}})
                  return res.status(200).send({ status: true, message: "slot booking successfull", data: updatedSlot });
             }else{
                 return res.status(400).send({ status: false, message: "You are already booked a slot" })
                 }  
          }
-
+        //for new booking and update the slot
         const saveData = {
             userId: userId,
             doseType: doseType,
