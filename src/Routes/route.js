@@ -5,21 +5,21 @@ const userController = require("../Controllers/userController");
 const slotController = require("../Controllers/slotController");
 const bookingController = require("../Controllers/bookingController");
 
-const {authentication,authorization} = require("../Middlewares/auth");
+const { authentication, authorization, adminAuthorization } = require("../Middlewares/auth");
 
 
 
-router.post('/register',userController.createUser)
+router.post('/register', userController.createUser)
 
-router.post('/login',userController.login)
+router.post('/login', userController.login)
 
-router.post('/slot/:adminId',slotController.createSlot)       //only admin can create slot
+router.post('/slot/:adminId', adminAuthorization, slotController.createSlot)       //only admin can create slot
 
-router.get('/slot',authentication,slotController.getSlot)     //Login user can see the slot
+router.get('/slot', authentication, slotController.getSlot)     //Login user can see the slot
 
-router.post('/booking/:userId',authentication,authorization,bookingController.bookSlot) 
+router.post('/booking/:userId', authentication, authorization, bookingController.bookSlot)
 
-router.put('/booking/:userId',authentication,authorization,bookingController.updateBooking) //user cancelled the booking slot only
+router.put('/booking/:userId', authentication, authorization, bookingController.updateBooking) //user cancelled the booking slot only
 
 
 
