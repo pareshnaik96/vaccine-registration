@@ -27,7 +27,7 @@ const bookSlot = async function (req, res) {
 
         let data = req.body
  
-        const { doseType, slotDate, slotTime } = data
+        const {  slotDate, slotTime } = data
         
         //for finding availability of slot from slotmodel
         const findSlot = await slotModel.findOne({ slotDate: slotDate, slotTime: slotTime })
@@ -42,15 +42,26 @@ const bookSlot = async function (req, res) {
         if(findBooking){
             const getDoseType = findBooking.doseType
             const getStatus =  findBooking.status
-            var findbookingId = findBooking._id
-
-            if(getDoseType =="First" && getStatus == "complected" || getDoseType =="First" && getStatus == "cancelled" ){
+            const findbookingId = findBooking._id
+            //if first dose cancelled then booking for another slot
+            if( getDoseType =="First" && getStatus == "cancelled" ){
 
             let updatedSlot =  await bookingModel.findOneAndUpdate({ _id: findbookingId, userId }, {$set:{ status:"pending" }}, { new: true });
 
                 const slotId = findSlot._id
                 const newbookedSlot = findSlot.bookedSlot
                  //finding the slot from slot Id and increasing the bookedSlot to +1 and decrease the available slot to -1
+                 await slotModel.findOneAndUpdate({_id:slotId},{$set:{bookedSlot:newbookedSlot+1,availableSlot:availableSlot-1}})
+                 return res.status(200).send({ status: true, message: "slot booking successfull", data: updatedSlot });
+            }
+            //if first dose is complected then booking for second dose and update the status
+            if( getDoseType =="First" && getStatus == "complected"){
+
+            let updatedSlot =  await bookingModel.findOneAndUpdate({ _id: findbookingId, userId }, {$set:{ status:"pending",doseType:"Second" }}, { new: true });
+
+                const slotId = findSlot._id
+                const newbookedSlot = findSlot.bookedSlot
+    
                  await slotModel.findOneAndUpdate({_id:slotId},{$set:{bookedSlot:newbookedSlot+1,availableSlot:availableSlot-1}})
                  return res.status(200).send({ status: true, message: "slot booking successfull", data: updatedSlot });
             }else{
@@ -112,7 +123,7 @@ const updateBooking = async function(req,res){
 
 
         if (findBooking && findBooking.status == "pending"){
-        let updatedBooking = await bookingModel.findOneAndUpdate({ _id: bookingId, userId }, {$set:{ status:"cancelled" }}, { new: true });
+        let updatedBooking = await bookingModel.findOneAndUpdate({ _id: bookingId, userId }, {$set:{ status:status }}, { new: true });
             return res.status(200).send({ status: true, message: "slot updated successfully ", data: updatedBooking });
         }
 
